@@ -177,7 +177,7 @@ Variables for the [`caddy` service](./docker-compose-yml.md#caddy-service).
 
 ### `CADDY_CONTAINER_PORT`
 
-The [port number](./computer-networks.md#port-number) [`Caddy`](./caddy.md#what-is-caddy) [listens on](./computer-networks.md#listen-on-a-port) inside the [container](./docker.md#container).
+The [port number](./computer-networks.md#port-number) that [`Caddy`](./caddy.md#what-is-caddy) [listens on](./computer-networks.md#listen-on-a-port) inside the [container](./docker.md#container).
 
 Default: `80`
 
