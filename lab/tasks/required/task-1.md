@@ -204,6 +204,8 @@ The code stubs in `backend/app/etl.py` contain detailed TODOs.
 
    - Uses `httpx.AsyncClient` with HTTP Basic Auth for API calls.
    - Handles pagination in `fetch_logs()` (loops while `has_more` is True).
+   - In `load_items()`, maps labs by their short ID (e.g. `"lab-01"`), not by title, so tasks can find their parent.
+   - Passes the raw items catalog to `load_logs()` so it can map log fields (e.g. `"lab-01"`, `"setup"`) to item titles in the DB.
    - Creates learners by `external_id` in `load_logs()` (find-or-create pattern).
    - Uses `external_id` on `InteractionLog` for idempotent upserts (skip if exists).
    - Returns `{"new_records": N, "total_records": M}` from `sync()`.
