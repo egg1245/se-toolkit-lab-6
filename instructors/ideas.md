@@ -28,6 +28,7 @@
   - [Lab Observability - TODO - Backlog](#lab-observability---todo---backlog)
   - [Lab Telegram Bot - TODO - Task 2](#lab-telegram-bot---todo---task-2)
 - [Future Lab](#future-lab)
+  - [Future Lab - TODO - Backlog](#future-lab---todo---backlog)
   - [Future Lab - VM setup](#future-lab---vm-setup)
 
 ## Course - TODO
@@ -40,7 +41,7 @@
 
 ### Lab 5 - TODO - Repo
 
-- move instructors/context/conventions and docs/contributing/conventions to contributing/conventions
+- [x] move instructors/context/conventions and docs/contributing/conventions to contributing/conventions
 
 ### Lab 5 - TODO - Conventions
 
@@ -195,7 +196,7 @@
 ### Lab 5 - DONE - Conventions
 
 - [x] conventions: prohibit agent-specific language in skills
-      see docs/contributing/conventions/skills.md
+      see contributing/conventions/skills.md
 
 ### Lab 5 - DONE - Skills
 
@@ -228,6 +229,10 @@
 - telegram bot task - create an issue from a group chat.
 
 ## Future Lab
+
+### Future Lab - TODO - Backlog
+
+- Multiple backends (Go, Haskell, TypeScript, Java)
 
 ### Future Lab - VM setup
 

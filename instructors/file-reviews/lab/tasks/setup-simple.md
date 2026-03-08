@@ -2,8 +2,8 @@
 
 - **Date:** 2026-03-07
 - **Convention files used:**
-  - `instructors/context/conventions/tasks.md` (Section 5: D1–D12 conceptual dimensions; Sections 1, 4: task structure and design)
-  - `instructors/context/conventions/common.md` (4.1–4.26)
+  - `contributing/conventions/tasks.md` (Section 5: D1–D12 conceptual dimensions; Sections 1, 4: task structure and design)
+  - `contributing/conventions/common.md` (4.1–4.26)
 - **Note:** This is a setup file, not a `task-N.md` file. Task-only conventions (Section 1 template, acceptance criteria format) are skipped per review rules. All `common.md` conventions apply. Conceptual dimensions are evaluated where applicable.
 
 ---

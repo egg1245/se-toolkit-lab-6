@@ -4,8 +4,8 @@
 
 **Convention files used:**
 
-- `instructors/context/conventions/tasks.md` — Section 1 (task document template), Section 4 (task design principles), Section 5 (conceptual review dimensions D1–D12)
-- `instructors/context/conventions/common.md` — writing conventions (4.1–4.26)
+- `contributing/conventions/tasks.md` — Section 1 (task document template), Section 4 (task design principles), Section 5 (conceptual review dimensions D1–D12)
+- `contributing/conventions/common.md` — writing conventions (4.1–4.26)
 
 ---
 

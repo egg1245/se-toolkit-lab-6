@@ -9,7 +9,7 @@ Review the meeting report for lab N, iteration M by cross-checking it against th
 ## Steps
 
 1. Parse `$ARGUMENTS` to extract N (lab number) and M (iteration number). Both are required — if missing, ask the user.
-2. Read `instructors/context/conventions/meeting-report.md` for the report format rules.
+2. Read `contributing/conventions/meeting-report.md` for the report format rules.
 3. Read `instructors/meetings/week-N/meeting-M/meeting-report.md` (substituting actual N and M).
 4. Read `instructors/meetings/week-N/meeting-M/meetings/transcript-by-speaker.txt`.
 5. If the report's **Metadata → Files discussed** section lists any files, read each of them.
