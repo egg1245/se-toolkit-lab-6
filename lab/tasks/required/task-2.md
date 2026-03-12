@@ -1,10 +1,8 @@
 # The Documentation Agent
 
-In Task 1 you built a CLI that calls an LLM — but it can only answer from the knowledge baked into its training data or your system prompt. It cannot look at your actual code or read your documentation. That is the difference between a chatbot and an **agent**: an agent has **tools** — functions it can call to interact with the real world, then reason about the results.
+In Task 1 you built a CLI that calls an LLM, but it still cannot look at your actual code or read your documentation. That is the difference between a chatbot and an **agent**: an agent has **tools** — functions it can call to interact with the real world, then reason about the results. We'll start by giving your agent two tools (`read_file`, `list_files`) to navigate the project wiki.
 
-In this task you will give your agent two tools (`read_file`, `list_files`) and build the **agentic loop**: the LLM decides which tool to call, your code executes it, feeds the result back, and the LLM decides what to do next — call another tool or give the final answer. The agent will navigate the project wiki to answer questions.
-
-## What you will build
+## You will build the agentic loop 🤖
 
 An agentic loop: your code sends the question to the LLM, the LLM decides which tool to call, your code executes it, feeds the result back, and the LLM decides what to do next — call another tool or give the final answer.
 
@@ -17,7 +15,12 @@ Question ──▶ LLM ──▶ tool call? ──yes──▶ execute tool ─�
                     JSON output
 ```
 
-The agent navigates the project wiki using two tools: `list_files` to discover files, `read_file` to read them. It returns the answer with a source reference to the wiki section.
+1. Send the user's question + tool definitions to the LLM.
+2. If the LLM responds with `tool_calls` → execute each tool, append results as `tool` role messages, go to step 1.
+3. If the LLM responds with a text message (no tool calls) → that's the final answer. Extract the answer and source, output JSON and exit.
+4. If you hit 10 tool calls → stop looping, use whatever answer you have.
+
+Your system prompt should tell the LLM to use `list_files` to discover wiki files, then `read_file` to find the answer, and include the source reference (file path + section anchor).
 
 ## CLI interface
 
@@ -62,14 +65,6 @@ List files and directories at a given path.
 - **Returns:** newline-separated listing of entries.
 - **Security:** must not list directories outside the project directory.
 
-## The agentic loop
-
-1. Send the user's question + tool definitions to the LLM.
-2. If the LLM responds with `tool_calls` → execute each tool, append results as `tool` role messages, go to step 1.
-3. If the LLM responds with a text message (no tool calls) → that's the final answer. Extract the answer and source, output JSON and exit.
-4. If you hit 10 tool calls → stop looping, use whatever answer you have.
-
-Your system prompt should tell the LLM to use `list_files` to discover wiki files, then `read_file` to find the answer, and include the source reference (file path + section anchor).
 
 ## Deliverables
 
@@ -116,7 +111,7 @@ Commit:
 docs: update agent documentation with tool calling
 ```
 
-### 4. Tests (5 tests)
+### 4. Tests (5 more tests)
 
 Add 5 regression tests that verify the documentation agent works. Each test should:
 
