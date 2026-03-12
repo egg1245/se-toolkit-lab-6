@@ -20,6 +20,27 @@ You've used AI agents throughout the course — now you'll build one from scratc
 
 You have a running Learning Management Service — a backend, a database full of analytics data, and a frontend dashboard. Your project has a wiki full of documentation that nobody reads. You will build a CLI agent that reads the docs for you, answers questions about the course, connects to the live system to do something actually useful, and then prove it works against a benchmark.
 
+```
+┌──────────────────────────────────────────────────────────────┐
+│  Student's VM                                                │
+│                                                              │
+│  ┌──────────────┐     ┌──────────────────────────────────┐   │
+│  │  agent.py    │────▶│  OpenRouter API (free LLM)       │   │
+│  │  (CLI)       │◀────│  tool calling models              │   │
+│  └──────┬───────┘     └──────────────────────────────────┘   │
+│         │                                                    │
+│         │ tool calls                                         │
+│         ├──────────▶ read_file(path) ──▶ wiki/, source code  │
+│         ├──────────▶ list_files(dir)  ──▶ wiki/, directories │
+│         ├──────────▶ query_api(path)  ──▶ localhost:42002    │
+│         │                                                    │
+│  ┌──────┴───────┐                                            │
+│  │  Docker      │  app (FastAPI) ─── postgres (data)         │
+│  │  Compose     │  caddy (frontend)                          │
+│  └──────────────┘                                            │
+└──────────────────────────────────────────────────────────────┘
+```
+
 ## Learning advice
 
 This lab is different from previous ones. You are not following step-by-step instructions — you are building something and iterating until it works. Use your coding agent to help you understand and plan:
