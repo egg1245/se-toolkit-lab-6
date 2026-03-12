@@ -207,7 +207,7 @@ uv run agent.py "How do you resolve a merge conflict?"
 **Fields:**
 
 - `answer` (string, required) — the agent's answer.
-- `source` (string, optional) — wiki section reference. Required in Task 1, optional in Tasks 2-3.
+- `source` (string, optional) — wiki section reference. Absent in Task 1, required in Task 2, optional in Task 3.
 - `tool_calls` (array, required) — tool calls made. Empty array if none.
 
 **Rules:**
@@ -225,21 +225,21 @@ uv run agent.py "How do you resolve a merge conflict?"
 - **Parameters:** `path` (string) — relative path from project root.
 - **Returns:** file contents as string, or error message.
 - **Security:** must restrict to project directory.
-- **Used in:** Task 1 (wiki files), Task 2 (source code, config), Task 3 (tracing bugs).
+- **Used in:** Task 2 (wiki files), Task 3 (source code, config, tracing bugs).
 
 ### `list_files`
 
 - **Parameters:** `path` (string) — relative directory path.
 - **Returns:** newline-separated listing.
 - **Security:** must restrict to project directory.
-- **Used in:** Task 1 (discover wiki files), Task 2 (explore code structure).
+- **Used in:** Task 2 (discover wiki files), Task 3 (explore code structure).
 
 ### `query_api`
 
 - **Parameters:** `method` (string), `path` (string), `body` (string, optional).
 - **Returns:** JSON with `status_code` and `body`.
 - **Auth:** uses `LMS_API_KEY` from `.env.docker.secret`.
-- **Introduced in:** Task 2.
+- **Introduced in:** Task 3.
 
 ## Question classes
 
@@ -400,7 +400,7 @@ Open-ended questions where keyword matching isn't sufficient.
 
 ### Anti-gaming
 
-- Task 1 answers are deterministic wiki sections — hardcoding requires the wiki files.
+- Task 2 answers are deterministic wiki sections — hardcoding requires the wiki files.
 - Failure feedback shows hints, not expected values (Classes B-E).
 - Hidden questions include multi-tool chains that can't be hardcoded.
 - LLM judge for open-ended hidden questions.
@@ -416,7 +416,7 @@ uv run run_eval.py --index 5 # single question (for debugging)
 
 ## Wiki requirements
 
-Task 1 depends on a comprehensive wiki covering labs 1-6.
+Task 2 depends on a comprehensive wiki covering labs 1-6.
 
 | Topic | Lab | Wiki file |
 |-------|-----|-----------|
