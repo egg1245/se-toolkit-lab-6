@@ -1,6 +1,6 @@
 # Call an LLM from Code
 
-Build a CLI that connects to an LLM and answers questions about the course.
+Build a CLI that connects to an LLM and answers questions. This is the foundation for the agent you will build in the next tasks.
 
 ## [Git workflow](../../../wiki/git-workflow.md)
 
@@ -13,10 +13,10 @@ Build a CLI that connects to an LLM and answers questions about the course.
 
 ## What you will build
 
-A `Python` CLI program (`agent.py`) that takes a question, sends it to an LLM, and returns a structured JSON answer.
+A `Python` CLI program (`agent.py`) that takes a question, sends it to an LLM, and returns a structured JSON answer. No tools or agentic loop yet — just the basic plumbing: parse input, call the LLM, format output. You will add tools and the agentic loop in Tasks 2–3.
 
 ```
-User question → System prompt + question → LLM API → Answer
+User question → agent.py → LLM API → JSON answer
 ```
 
 ## CLI interface
@@ -90,7 +90,6 @@ Before writing code, create `plans/task-1.md`. Describe your plan:
 
 - Which LLM provider and model you will use, and why.
 - How you will structure the agent (argument parsing, API call, output formatting).
-- What your system prompt strategy will be.
 
 Commit:
 
@@ -100,15 +99,13 @@ docs: add implementation plan for LLM integration
 
 ### 2. Agent (`agent.py`)
 
-Create `agent.py` in the project root. The agent must handle questions about these course topics using its system prompt:
+Create `agent.py` in the project root. It should:
 
-- **Git**: branches, commits, merging, PRs, issues, workflows.
-- **REST**: HTTP methods, status codes, authentication vs authorization.
-- **Docker**: containers, images, Dockerfile, Docker Compose, volumes.
-- **SQL**: SELECT, JOIN, GROUP BY, aggregation functions.
-- **Testing**: unit tests, e2e tests, pytest.
-- **ETL**: extract-transform-load, pagination, idempotent upserts.
-- **Agents**: agentic loops, tool calling, LLM APIs.
+- Read a question from the command-line argument.
+- Send it to the LLM with a system prompt.
+- Parse the LLM response and output JSON to stdout.
+
+The system prompt can be minimal for now — just tell the LLM to answer concisely. You will expand it in later tasks when you add tools and domain knowledge.
 
 Commit:
 
@@ -122,7 +119,6 @@ Create `AGENT.md` in the project root documenting:
 
 - **Architecture**: how the agent works (input parsing, LLM call, output formatting).
 - **LLM provider**: which provider and model you chose, and why.
-- **System prompt strategy**: how you covered the course topics.
 - **How to run**: the command and required environment variables.
 
 Commit:
@@ -138,7 +134,7 @@ Create 5 regression tests that verify the agent works. Each test should:
 - Run `agent.py` as a subprocess with a known question.
 - Parse the stdout JSON.
 - Check that `answer` and `tool_calls` are present.
-- Check that the answer contains expected keywords.
+- Check that the answer is a non-empty string.
 
 Commit:
 
@@ -162,7 +158,7 @@ Make sure `.env.agent.secret` is configured on the VM with the same LLM credenti
 - [ ] `plans/task-1.md` exists with the implementation plan (committed before code).
 - [ ] `agent.py` exists in the project root.
 - [ ] `uv run agent.py "..."` outputs valid JSON with `answer` and `tool_calls`.
-- [ ] The agent answers course topic questions correctly.
+- [ ] The agent answers general questions using the LLM.
 - [ ] The API key is stored in `.env.agent.secret` (not hardcoded).
 - [ ] `AGENT.md` documents the solution architecture.
 - [ ] 5 regression tests exist and pass.
