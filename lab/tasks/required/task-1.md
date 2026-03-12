@@ -15,27 +15,24 @@ In this task you will build a CLI agent that reads the project wiki, finds the s
 
 ## What you will build
 
-An agentic loop: the LLM navigates the project wiki using tools, finds the section that answers the question, and returns the answer with a source reference.
+A CLI program (`agent.py`) that takes a question, uses an LLM with tools to find the answer in the project wiki, and outputs structured JSON.
 
 ```mermaid
-sequenceDiagram
-    actor User
-    participant CLI as agent.py
-    participant LLM as LLM API<br/>(OpenRouter)
-    participant Tools as Tools<br/>(files)
+flowchart TD
+    Q["uv run agent.py 'How do you resolve a merge conflict?'"]
 
-    User->>CLI: uv run agent.py "..."
-    CLI->>LLM: messages + tool definitions
-    LLM-->>CLI: tool_calls: [{list_files, ...}]
-    CLI->>Tools: execute list_files("wiki")
-    Tools-->>CLI: file listing
-    CLI->>LLM: tool result
-    LLM-->>CLI: tool_calls: [{read_file, ...}]
-    CLI->>Tools: execute read_file("wiki/git-workflow.md")
-    Tools-->>CLI: file contents
-    CLI->>LLM: tool result
-    LLM-->>CLI: final answer + source
-    CLI->>User: {"answer": "...", "source": "...", "tool_calls": [...]}
+    subgraph agent.py
+        Send["Send question to LLM"] --> Decision{"LLM response?"}
+        Decision -->|tool call| Exec["Execute tool"]
+        Exec --> Send
+        Decision -->|text answer| Done["Build JSON output"]
+    end
+
+    Q --> Send
+    Exec -.->|"list_files('wiki')"| Wiki["wiki/ files"]
+    Exec -.->|"read_file('wiki/git-workflow.md')"| Wiki
+    Send -.-> LLM["LLM API (OpenRouter)"]
+    Done --> Out["{answer, source, tool_calls}"]
 ```
 
 ## LLM access

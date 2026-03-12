@@ -13,23 +13,24 @@ In Task 1 you built an agent that reads documentation. But documentation can be 
 
 ## What you will build
 
-A system-aware agent: the LLM can now query your deployed backend API in addition to reading files and the wiki.
+You will add a `query_api` tool to the agent you built in Task 1. The agent can now reach your deployed backend in addition to reading files.
 
 ```mermaid
-sequenceDiagram
-    actor User
-    participant CLI as agent.py
-    participant LLM as LLM API<br/>(OpenRouter)
-    participant Tools as Tools<br/>(files, API)
+flowchart TD
+    Q["uv run agent.py 'How many items are in the database?'"]
 
-    User->>CLI: uv run agent.py "..."
-    CLI->>LLM: messages + tool definitions
-    LLM-->>CLI: tool_calls: [{query_api, ...}]
-    CLI->>Tools: execute query_api(GET, /items/)
-    Tools-->>CLI: {"status_code": 200, "body": "[...]"}
-    CLI->>LLM: tool result
-    LLM-->>CLI: final answer
-    CLI->>User: {"answer": "...", "tool_calls": [...]}
+    subgraph agent.py
+        Send["Send question to LLM"] --> Decision{"LLM response?"}
+        Decision -->|tool call| Exec["Execute tool"]
+        Exec --> Send
+        Decision -->|text answer| Done["Build JSON output"]
+    end
+
+    Q --> Send
+    Exec -.->|"read_file, list_files"| Files["wiki/ and source code"]
+    Exec -.->|"query_api(GET, /items/)"| API["Backend API\nlocalhost:42002"]
+    Send -.-> LLM["LLM API (OpenRouter)"]
+    Done --> Out["{answer, tool_calls}"]
 ```
 
 ## CLI interface
