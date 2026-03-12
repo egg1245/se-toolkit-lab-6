@@ -81,7 +81,6 @@ In simple words, you should be able to say:
 1. [Call an LLM from code](./lab/tasks/required/task-1.md#call-an-llm-from-code)
 2. [The documentation agent](./lab/tasks/required/task-2.md#the-documentation-agent)
 3. [The system agent](./lab/tasks/required/task-3.md#the-system-agent)
-4. [Pass the benchmark](./lab/tasks/required/task-4.md#pass-the-benchmark)
 
 ### Optional (recommended)
 
