@@ -16,22 +16,20 @@ The lab gets updated regularly, so do [sync your fork with the upstream](https:/
 
 > "Everybody should implement an agent loop at some point. It's the hello-world of agentic engineering."
 
-You've used AI agents throughout the course — now you'll build one from scratch.
-
-You have a running Learning Management Service — a backend, a database full of analytics data, and a frontend dashboard. Your project has a wiki full of documentation that nobody reads. You will build a CLI agent that reads the docs for you, answers questions about the course, connects to the live system to do something actually useful, and then prove it works against a benchmark.
+You will build a CLI agent that can answer questions by reading the lab docs, connecting to your VM backend. You then will evaluate the agents against a benchmark.
 
 ```
 ┌──────────────────────────────────────────────────────────────┐
-│  Student's VM                                                │
+│  Your VM                                                     │
 │                                                              │
 │  ┌──────────────┐     ┌──────────────────────────────────┐   │
-│  │  agent.py    │────▶│  OpenRouter API (free LLM)       │   │
-│  │  (CLI)       │◀────│  tool calling models              │   │
+│  │  agent.py    │────▶│  OpenRouter API                  │   │
+│  │  (CLI)       │◀────│  (a free LLM with tool use)      │   │
 │  └──────┬───────┘     └──────────────────────────────────┘   │
 │         │                                                    │
 │         │ tool calls                                         │
-│         ├──────────▶ read_file(path) ──▶ wiki/, source code  │
-│         ├──────────▶ list_files(dir)  ──▶ wiki/, directories │
+│         ├──────────▶ read_file(path) ──▶ source code, wiki/  │
+│         ├──────────▶ list_files(dir)  ──▶ files and folders  │
 │         ├──────────▶ query_api(path)  ──▶ localhost:42002    │
 │         │                                                    │
 │  ┌──────┴───────┐                                            │
@@ -51,9 +49,7 @@ This lab is different from previous ones. You are not following step-by-step ins
 
 > My agent failed this question: "...". Diagnose why and suggest a fix.
 
-The agent you build is simple (~100-200 lines). The learning comes from debugging it against the benchmark — each failure teaches you something about agents or course material.
-
-You need a coding agent that has access to the whole repo to work effectively.
+The agent you build is simple (~100-200 lines). The learning comes from debugging it against the benchmark.
 
 ## Learning outcomes
 
