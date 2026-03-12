@@ -19,13 +19,33 @@ A `Python` CLI program (`agent.py`) that takes a question, sends it to an LLM, a
 User question → System prompt + question → LLM API → Answer
 ```
 
-## LLM access
+## CLI interface
+
+**Input** — a question as the first command-line argument:
+
+```bash
+uv run agent.py "What does REST stand for?"
+```
+
+**Output** — a single JSON line to stdout:
+
+```json
+{"answer": "Representational State Transfer.", "tool_calls": []}
+```
+
+**Rules:**
+
+- `answer` and `tool_calls` fields are required in the output.
+- `tool_calls` is an empty array for this task (you will populate it in Task 2).
+- Only valid JSON goes to stdout. All debug/progress output goes to **stderr**.
+- The agent must respond within 60 seconds.
+- Exit code 0 on success.
+
+## How to get access to an LLM?
 
 Your agent needs an LLM that supports the OpenAI-compatible chat completions API. You are free to use any provider.
 
-[OpenRouter](https://openrouter.ai) offers free models with no credit card required. Look for models that support **tool calling** — you will need this in Task 2.
-
-> **Tip:** Free-tier models can hit rate limits (`429`) and occasional `5xx` errors. Keep this in mind when designing your agent and see [Optional Task 1](../optional/task-1.md#advanced-agent-features) for retry logic with backoff.
+[OpenRouter](https://openrouter.ai) offers free models with no credit card required. Look for models that support **tool calling** — you will need this in later tasks.
 
 **Recommended models** (free, reliable tool calling):
 
@@ -35,7 +55,7 @@ Your agent needs an LLM that supports the OpenAI-compatible chat completions API
 | `meta-llama/llama-3.3-70b-instruct:free` | Strong | Reliable fallback |
 | `qwen/qwen-2.5-72b-instruct:free` | Good | Alternative |
 
-Store your LLM key in `.env.agent.secret` (gitignored by the `*.secret` pattern). An example file is provided:
+Register in OpenRouter and get an API key from them. This will be your LLM_API_KEY in `.env.agent.secret` (gitignored by the `*.secret` pattern). An example file is provided:
 
 ```bash
 cp .env.agent.example .env.agent.secret
@@ -60,27 +80,7 @@ You should see:
 
 Set up the same LLM credentials on your VM too — the autochecker will run your agent there.
 
-## CLI interface
-
-**Input** — a question as the first command-line argument:
-
-```bash
-uv run agent.py "What does REST stand for?"
-```
-
-**Output** — a single JSON line to stdout:
-
-```json
-{"answer": "Representational State Transfer.", "tool_calls": []}
-```
-
-**Rules:**
-
-- `answer` and `tool_calls` fields are required in the output.
-- `tool_calls` is an empty array for this task (you will populate it in Task 2).
-- Only valid JSON goes to stdout. All debug/progress output goes to **stderr**.
-- The agent must respond within 60 seconds.
-- Exit code 0 on success.
+> **Note:** Free-tier models can hit rate limits (`429`) and occasional `5xx` errors. Keep this in mind when designing your agent and see [Optional Task 1](../optional/task-1.md#advanced-agent-features) for retry logic with backoff.
 
 ## Deliverables
 
