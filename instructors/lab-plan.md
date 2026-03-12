@@ -516,7 +516,7 @@ This is a better model of real-world debugging (errors are often silent to the u
 - [x] Add `check_tools` / tool chain checking to engine.
 - [x] Add exception handler in `main.py` for visible error responses.
 - [x] Write Class E questions (3 LLM-judged reasoning, bot-only).
-- [x] Add `llm_judge` checking to engine (uses OpenRouter, gemini-2.5-flash-lite).
+- [x] Add `llm_judge` checking to engine (uses OpenRouter, llama-4-scout:free).
 - [x] Deploy autochecker with Class D/E questions and LLM judge.
 
 **Remaining (high priority):**
