@@ -6,37 +6,26 @@ In this task you will give your agent two tools (`read_file`, `list_files`) and 
 
 ## What you will build
 
-An agentic loop: the LLM navigates the project wiki using tools, finds the section that answers the question, and returns the answer with a source reference.
+An agentic loop: your code sends the question to the LLM, the LLM decides which tool to call, your code executes it, feeds the result back, and the LLM decides what to do next — call another tool or give the final answer.
 
-```mermaid
-flowchart TD
-    Q["uv run agent.py 'How do you resolve a merge conflict?'"]
-
-    subgraph agent.py
-        Send["Send question to LLM"] --> Decision{"LLM response?"}
-        Decision -->|tool call| Exec["Execute tool"]
-        Exec --> Send
-        Decision -->|text answer| Done["Build JSON output"]
-    end
-
-    Q --> Send
-    Exec -.->|"list_files('wiki')"| Wiki["wiki/ files"]
-    Exec -.->|"read_file('wiki/git-workflow.md')"| Wiki
-    Send -.-> LLM["LLM API (OpenRouter)"]
-    Done --> Out["{answer, source, tool_calls}"]
 ```
+Question ──▶ LLM ──▶ tool call? ──yes──▶ execute tool ──▶ back to LLM
+                         │
+                         no
+                         │
+                         ▼
+                    JSON output
+```
+
+The agent navigates the project wiki using two tools: `list_files` to discover files, `read_file` to read them. It returns the answer with a source reference to the wiki section.
 
 ## CLI interface
 
-Same as Task 1, with two additions: `source` field and populated `tool_calls`.
-
-**Input:**
+Same rules as Task 1. Two additions: `source` field and populated `tool_calls`.
 
 ```bash
 uv run agent.py "How do you resolve a merge conflict?"
 ```
-
-**Output:**
 
 ```json
 {
@@ -49,22 +38,13 @@ uv run agent.py "How do you resolve a merge conflict?"
 }
 ```
 
-**Fields:**
-
-- `answer` (string, required) — the agent's answer to the question.
 - `source` (string, required) — the wiki section reference (e.g., `wiki/git-workflow.md#resolving-merge-conflicts`).
 - `tool_calls` (array, required) — all tool calls made. Each entry has `tool`, `args`, and `result`.
-
-**Rules (same as Task 1):**
-
-- Only valid JSON goes to stdout. All debug/progress output goes to **stderr**.
-- The agent must respond within 60 seconds.
 - Maximum 10 tool calls per question.
-- Exit code 0 on success.
 
 ## Required tools
 
-You must implement two tools and register them as function-calling schemas in your LLM request.
+Implement two tools and register them as function-calling schemas in your LLM request.
 
 ### `read_file`
 
@@ -84,18 +64,12 @@ List files and directories at a given path.
 
 ## The agentic loop
 
-Your agent should follow this pattern:
-
 1. Send the user's question + tool definitions to the LLM.
 2. If the LLM responds with `tool_calls` → execute each tool, append results as `tool` role messages, go to step 1.
 3. If the LLM responds with a text message (no tool calls) → that's the final answer. Extract the answer and source, output JSON and exit.
 4. If you hit 10 tool calls → stop looping, use whatever answer you have.
 
-Your system prompt should tell the LLM:
-
-- It is a documentation agent that answers questions using the project wiki.
-- It should use `list_files` to discover wiki files, then `read_file` to find the answer.
-- It must include the source reference (file path + section anchor) in its response.
+Your system prompt should tell the LLM to use `list_files` to discover wiki files, then `read_file` to find the answer, and include the source reference (file path + section anchor).
 
 ## Deliverables
 
