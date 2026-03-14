@@ -348,24 +348,28 @@ REMEMBER:
             # No tool calls - check if this is really the final answer
             content = response.get("content") or ""
             
-            # If content looks incomplete (short, ends with ellipsis), keep exploring
+            # If content looks incomplete (very short, unfinished sentence), keep exploring
+            # Consider it incomplete if:
+            # - Ends with colon or comma (setting up next step)
+            # - Ends with backquote/code marker (incomplete code block)
+            # - Is very short and ends with punctuation that suggests continuation
             is_incomplete = (
-                content.strip().endswith("...") or 
-                len(content.strip()) < 50 or
-                content.strip().endswith(":") or
-                content.strip().endswith(",")
+                (len(content.strip()) < 30 and content.strip().endswith(":")) or
+                (len(content.strip()) < 50 and content.strip().endswith(",")) or
+                content.strip().endswith("```") or
+                (content.strip().startswith("Let me ") and iteration < max_iterations - 1)
             )
             
-            if is_incomplete and iteration < max_iterations - 1:
+            if is_incomplete:
                 # This is an incomplete intermediate response, force LLM to continue
                 # Add a message encouraging more work
                 messages.append({
                     "role": "user",
-                    "content": "Please continue exploring to find the complete answer. Keep using tools until you have enough information to provide a final, complete answer."
+                    "content": "Continue exploring. Use tools to find the complete information needed to answer the question fully."
                 })
                 continue
             
-            # This is the final answer (either complete or we're out of iterations)
+            # This is the final answer
             source = ""
 
             # Try to extract source from answer
