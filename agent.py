@@ -311,7 +311,9 @@ CRITICAL RULES:
 Always provide:
 - Clear, direct answers
 - Source references (file paths for documentation, endpoint for API)
-- Error handling and explanations"""
+- Error handling and explanations
+
+REMEMBER: If your first search doesn't yield complete information, continue searching until you find the answer!"""
 
     messages = [
         {"role": "system", "content": system_prompt},
