@@ -349,17 +349,21 @@ REMEMBER:
             content = response.get("content") or ""
             
             # If content looks incomplete, keep exploring
-            # Consider it incomplete if:
-            # - Ends with incomplete code block
-            # - Very short placeholder text (< 150 chars) that looks like thinking/setup
+            # Consider it incomplete if it's a thinking/action statement
             is_incomplete = (
                 content.strip().endswith("```") or  # Incomplete code block
-                (len(content.strip()) < 150 and (
-                    content.strip().startswith("Let me ") or
-                    content.strip().startswith("I need to") or
-                    content.strip().startswith("I'll") or
-                    content.strip().startswith("Let me check")
-                ))
+                any(content.strip().lower().startswith(phrase) for phrase in [
+                    "let me ",
+                    "i need to",
+                    "i'll ",
+                    "i'll check",
+                    "now let me",
+                    "let me also",
+                    "let me first",
+                    "i should",
+                    "checking",
+                    "let me now",
+                ])
             )
             
             if is_incomplete:
