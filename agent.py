@@ -349,10 +349,17 @@ REMEMBER:
             content = response.get("content") or ""
             
             # If content looks incomplete, keep exploring
-            # Only continue if we have very short content AND it looks like setup text
+            # Consider it incomplete if:
+            # - Ends with incomplete code block
+            # - Very short placeholder text (< 150 chars) that looks like thinking/setup
             is_incomplete = (
                 content.strip().endswith("```") or  # Incomplete code block
-                (len(content.strip()) < 20 and content.strip().endswith(":"))  # Very short, ends with colon
+                (len(content.strip()) < 150 and (
+                    content.strip().startswith("Let me ") or
+                    content.strip().startswith("I need to") or
+                    content.strip().startswith("I'll") or
+                    content.strip().startswith("Let me check")
+                ))
             )
             
             if is_incomplete:
