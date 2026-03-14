@@ -348,21 +348,15 @@ REMEMBER:
             # No tool calls - check if this is really the final answer
             content = response.get("content") or ""
             
-            # If content looks incomplete (very short, unfinished sentence), keep exploring
-            # Consider it incomplete if:
-            # - Ends with colon or comma (setting up next step)
-            # - Ends with backquote/code marker (incomplete code block)
-            # - Is very short and ends with punctuation that suggests continuation
+            # If content looks incomplete, keep exploring
+            # Only continue if we have very short content AND it looks like setup text
             is_incomplete = (
-                (len(content.strip()) < 30 and content.strip().endswith(":")) or
-                (len(content.strip()) < 50 and content.strip().endswith(",")) or
-                content.strip().endswith("```") or
-                (content.strip().startswith("Let me ") and iteration < max_iterations - 1)
+                content.strip().endswith("```") or  # Incomplete code block
+                (len(content.strip()) < 20 and content.strip().endswith(":"))  # Very short, ends with colon
             )
             
             if is_incomplete:
                 # This is an incomplete intermediate response, force LLM to continue
-                # Add a message encouraging more work
                 messages.append({
                     "role": "user",
                     "content": "Continue exploring. Use tools to find the complete information needed to answer the question fully."
