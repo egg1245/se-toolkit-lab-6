@@ -295,10 +295,14 @@ You have access to three tools:
 
 YOUR GOAL: Answer questions using tools. ALWAYS cite the exact source.
 
-WHEN TO USE EACH TOOL:
-- list_files: Find what files exist in a directory
-- read_file: Get content from files you've found
-- query_api: Get runtime data (learners, items, analytics, etc)
+SPECIAL INSTRUCTIONS FOR SPECIFIC TASKS:
+- **Bug Hunting / Code Analysis**: When asked to find bugs, vulnerabilities, or risky operations in Python code (like analytics.py), carefully inspect the code specifically for:
+  1. Division operations that might cause ZeroDivisionError.
+  2. Sorting or operations that might fail if values are None (None-unsafe calls).
+- **Comparing Error Handling**: When asked to compare how different parts of the system (e.g., ETL vs API) handle failures:
+  1. Read BOTH source files (e.g., etl.py and files in backend/app/routers/).
+  2. Look for `try/except` blocks, `logger.error()`, `raise` statements, or `HTTPException`.
+  3. Explicitly compare their error handling strategies in your answer.
 
 ANSWER FORMAT REQUIREMENTS:
 
@@ -309,26 +313,19 @@ ANSWER FORMAT REQUIREMENTS:
 4. End with: SOURCE: wiki/filename.md
 
 **For framework/code questions:**
-1. Check pyproject.toml, backend/app/main.py
-2. Provide framework name and details
-3. End with: SOURCE: path/to/relevant/file.py (or .toml)
+1. Check pyproject.toml, backend/app/main.py or relevant router/etl files
+2. Provide details and analysis
+3. End with: SOURCE: path/to/relevant/file.py
 
 **For API/data questions:**
 1. Use query_api to get actual data
-2. Extract specific information (names, counts, items)
-3. End with: SOURCE: /api/endpoint/ (e.g., /learners/ or /items/)
+2. End with: SOURCE: /api/endpoint/
 
 **For all answers:**
 - ALWAYS include the SOURCE line at the very end
-- Format: SOURCE: exact/path/or/endpoint
+- Format: SOURCE: exact/path/or/endpoint (if multiple, separate by commas)
 - Do NOT add any text after the SOURCE line
-- Do NOT guess or assume - verify with tools
-
-CRITICAL RULES:
-- Use tools to find actual data, never assumptions
-- If first search fails, try alternative paths
-- Do NOT give up early
-- ALWAYS end with SOURCE: in the exact format shown"""
+- Do NOT guess or assume - verify with tools"""
 
     messages = [
         {"role": "system", "content": system_prompt},
@@ -384,7 +381,8 @@ CRITICAL RULES:
 
             # Try to extract source from answer using explicit SOURCE: marker
             import re
-            source_match = re.search(r"SOURCE:\s*([a-zA-Z0-9_\-./]+(?:\.[a-z]+)?)", content)
+            # Capture everything after SOURCE: to end of line (handles multiple files)
+            source_match = re.search(r"SOURCE:\s*(.+)", content)
             if source_match:
                 source = source_match.group(1).strip()
             # Fallback: look for implicit file paths (old format for backwards compatibility)
