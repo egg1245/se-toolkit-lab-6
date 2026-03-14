@@ -149,7 +149,10 @@ def read_file(path_str: str) -> str:
         # Limit content size to avoid overwhelming the LLM
         max_size = 50000
         if len(content) > max_size:
-            content = content[:max_size] + f"\n\n... (file truncated, original size: {len(content)} bytes)"
+            content = (
+                content[:max_size]
+                + f"\n\n... (file truncated, original size: {len(content)} bytes)"
+            )
 
         return content
     except Exception as e:
@@ -296,13 +299,30 @@ You have access to three tools:
 YOUR GOAL: Answer questions using tools. ALWAYS cite the exact source.
 
 SPECIAL INSTRUCTIONS FOR SPECIFIC TASKS:
+
+- **API Error Debugging**: When an API endpoint returns an error:
+  1. Read the error message carefully from the response
+  2. Find the relevant router file (e.g., backend/app/routers/analytics.py)
+  3. Locate the exact line causing the error
+  4. Explain WHAT the bug is and WHERE it occurs (line number/function name)
+
 - **Bug Hunting / Code Analysis**: When asked to find bugs, vulnerabilities, or risky operations in Python code (like analytics.py), carefully inspect the code specifically for:
   1. Division operations that might cause ZeroDivisionError.
   2. Sorting or operations that might fail if values are None (None-unsafe calls).
-- **Comparing Error Handling**: When asked to compare how different parts of the system (e.g., ETL vs API) handle failures:
-  1. Read BOTH source files (e.g., etl.py and files in backend/app/routers/).
-  2. Look for `try/except` blocks, `logger.error()`, `raise` statements, or `HTTPException`.
-  3. Explicitly compare their error handling strategies in your answer.
+  3. Array/dict access without bounds checking.
+
+- **Container/Network Architecture**: When asked about how requests flow through containers (docker-compose, Dockerfile):
+  1. Read docker-compose.yml to understand services and networking
+  2. Read Dockerfile to see what runs inside each service
+  3. Read Caddyfile to understand reverse proxy routing
+  4. Read backend/app/main.py to see how routes are registered
+  5. Trace the complete request path: client → Caddy → FastAPI → Router
+  6. Explain each step clearly with port numbers and service names
+
+- **Comparing Error Handling**: When asked to compare how different parts of the system handle failures:
+  1. Read BOTH source files (e.g., etl.py and files in backend/app/routers/)
+  2. Look for `try/except` blocks, `logger.error()`, `raise` statements, or `HTTPException`
+  3. Explicitly compare their error handling strategies in your answer
 
 ANSWER FORMAT REQUIREMENTS:
 
@@ -320,6 +340,11 @@ ANSWER FORMAT REQUIREMENTS:
 **For API/data questions:**
 1. Use query_api to get actual data
 2. End with: SOURCE: /api/endpoint/
+
+**For architecture/container questions:**
+1. Read all relevant config files (docker-compose.yml, Dockerfile, Caddyfile, main.py)
+2. Trace the request flow through containers
+3. End with: SOURCE: docker-compose.yml, Dockerfile, Caddyfile, backend/app/main.py
 
 **For all answers:**
 - ALWAYS include the SOURCE line at the very end
@@ -354,40 +379,43 @@ ANSWER FORMAT REQUIREMENTS:
         if "tool_calls" not in response or not response["tool_calls"]:
             # No tool calls - check if this is really the final answer
             content = response.get("content") or ""
-            
+
             # Only consider very specific patterns as "thinking" statements that indicate
             # the LLM wants to continue but didn't request a tool (which shouldn't happen)
             # In practice, if LLM wants to continue, it SHOULD request a tool
             # So we treat any response without tool_calls as final
-            
+
             # However, if it's VERY short and looks like a thinking statement, force continuation
-            is_incomplete = (
-                len(content.strip()) < 40 and any(
-                    content.strip().lower().startswith(phrase) 
-                    for phrase in ["let me ", "i need to", "let me check", "checking"]
-                )
+            is_incomplete = len(content.strip()) < 40 and any(
+                content.strip().lower().startswith(phrase)
+                for phrase in ["let me ", "i need to", "let me check", "checking"]
             )
-            
+
             if is_incomplete:
                 # This is clearly an incomplete response, encourage more exploration
-                messages.append({
-                    "role": "user",
-                    "content": "Use tools to find the answer. Provide a complete response with specific information and sources."
-                })
+                messages.append(
+                    {
+                        "role": "user",
+                        "content": "Use tools to find the answer. Provide a complete response with specific information and sources.",
+                    }
+                )
                 continue
-            
+
             # This is the final answer
             source = ""
 
             # Try to extract source from answer using explicit SOURCE: marker
             import re
+
             # Capture everything after SOURCE: to end of line (handles multiple files)
             source_match = re.search(r"SOURCE:\s*(.+)", content)
             if source_match:
                 source = source_match.group(1).strip()
             # Fallback: look for implicit file paths (old format for backwards compatibility)
             elif "wiki/" in content or "backend/" in content:
-                matches = re.findall(r"([a-zA-Z0-9_\-./]+\.(md|py|yaml|json|sql|txt))", content)
+                matches = re.findall(
+                    r"([a-zA-Z0-9_\-./]+\.(md|py|yaml|json|sql|txt))", content
+                )
                 if matches:
                     source = matches[0][0]
 
@@ -440,7 +468,9 @@ ANSWER FORMAT REQUIREMENTS:
 
 def main() -> int:
     """Main entry point for the agent CLI."""
-    parser = argparse.ArgumentParser(description="Agent that answers questions using an LLM and tools")
+    parser = argparse.ArgumentParser(
+        description="Agent that answers questions using an LLM and tools"
+    )
     parser.add_argument("question", help="The question to ask the agent")
 
     args = parser.parse_args()
