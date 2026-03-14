@@ -10,21 +10,27 @@ Build a basic CLI agent (`agent.py`) that:
 
 ## LLM Provider Choice
 
-**Selected: OpenRouter (meta-llama/llama-3.3-70b-instruct:free)**
+### Qwen Code API on VM (qwen3-coder-plus)
 
 Rationale:
 
-- No credit card required for free tier
-- Good tool-calling support
-- Accessible globally (works from Russia)
-- 50 free requests/day sufficient for local development
-- Can be switched to Qwen Code API later when VM is ready
+- Free and locally hosted on personal VM
+- Strong tool-calling support (OpenAI-compatible)
+- No rate limits, no credit card required
+- Privacy preserved (LLM stays on your machine)
+- Accessible remotely from laptop via SSH tunnel
+- 1000 free requests per day
+
+Setup:
+1. VM: Install Qwen Code in `~/qwen-code-oai-proxy/`
+2. VM: Set `QWEN_API_KEY` in `.env`
+3. Laptop: Set `LLM_API_KEY=<same-key>`, `LLM_API_BASE=http://<vm-ip>:5000/v1`
 
 Configuration:
 
-- `LLM_API_KEY`: OpenRouter API key (from environment)
-- `LLM_API_BASE`: `https://openrouter.ai/api/v1`
-- `LLM_MODEL`: meta-llama/llama-3.3-70b-instruct:free
+- `LLM_API_KEY`: Qwen Code API key (from VM, same as QWEN_API_KEY)
+- `LLM_API_BASE`: `http://<vm-ip>:5000/v1`
+- `LLM_MODEL`: `qwen3-coder-plus`
 
 ## Agent Architecture
 
