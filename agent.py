@@ -285,32 +285,33 @@ def run_agent_loop(
 
 You have access to three tools:
 
-1. **read_file** - Read documentation and source code files
-2. **list_files** - Discover what files and directories are available
-3. **query_api** - Query the backend API for runtime data
+1. **read_file(path)** - Read documentation and source code files from the project
+2. **list_files(path)** - Discover what files and directories are available
+3. **query_api(method, path, body)** - Query the backend API for runtime data
 
-Guidelines for tool usage:
+IMPORTANT WORKFLOW:
 
-For documentation questions ("How do I...", "What does...?", "Explain..."):
-- Use list_files to explore available documentation
-- Use read_file to read relevant files
-- Cite the source (file path)
+1. START by exploring the project structure with list_files to understand available resources
+2. For wiki/doc questions: Use list_files on 'wiki' directory, then read_file to get answers
+3. For code questions: Use list_files on 'backend' directory, then read_file specific files
+4. For data questions: Use query_api with GET requests to endpoints like /items/, /analytics/...
+5. If query_api returns an error, READ the source code to understand the issue and suggest fixes
 
-For code/architecture questions ("What framework...", "Show me..."):
-- Use read_file to examine source code and configuration files
-- Use list_files to explore project structure
-- Cite the source file
+CRITICAL RULES:
 
-For system/data questions ("How many...", "What status...", "Show data..."):
-- Use query_api to query the backend API
-- Include the endpoint you queried
-- Handle API errors by reading the source code to understand the bug
+- ALWAYS start with list_files to explore relevant directories first
+- ALWAYS read the complete relevant file sections to find the answer
+- ALWAYS include source references (file paths or API endpoints)
+- DO NOT give up early - if one search doesn't work, try alternative paths
+- DO NOT make assumptions - verify by reading actual files or querying API
+- For git/GitHub questions: Look in wiki/git* files
+- For framework questions: Check backend/app/main.py and pyproject.toml
+- For data questions: Query /items/, /analytics/, etc. with appropriate parameters
 
-Always:
-- Provide direct answers
-- Include source references (file paths for read_file, API endpoints for query_api)
-- Be concise and specific
-- Handle errors gracefully"""
+Always provide:
+- Clear, direct answers
+- Source references (file paths for documentation, endpoint for API)
+- Error handling and explanations"""
 
     messages = [
         {"role": "system", "content": system_prompt},
