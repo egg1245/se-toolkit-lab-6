@@ -33,19 +33,40 @@ LLM_API_BASE=https://openrouter.ai/api/v1
 LLM_MODEL=meta-llama/llama-3.3-70b-instruct:free
 ```
 
-### LLM Provider: OpenRouter
+### LLM Provider: Qwen Code API
 
-**Choice**: OpenRouter free tier (meta-llama/llama-3.3-70b-instruct:free)
+**Recommended Setup**: Qwen Code API on personal VM
 
-**Rationale**:
+**Why Qwen Code?**
 
-- No credit card required for free tier
-- Strong tool-calling support (important for tasks 2-3)
-- Globally accessible (works in Russia)
-- 50 requests/day free (sufficient for development)
-- Straightforward OpenAI-compatible API
+- Free and locally hosted (no Internet API keys needed)
+- Protects privacy (LLM stays on your VM)
+- Strong tool-calling support (OpenAI-compatible)
+- Can be accessed remotely by local machine
+- Secured with `QWEN_API_KEY` environment variable
 
-**Alternative**: Qwen Code API on personal VM (recommended for production)
+**How it works**:
+
+1. **On VM** (`~/qwen-code-oai-proxy/.env`):
+
+   ```bash
+   QWEN_API_KEY=your-secret-key
+   ```
+
+   Run the Qwen Code API server (listens on port 5000 or custom)
+
+2. **On your laptop** (`.env.agent.secret`):
+
+   ```bash
+   LLM_API_KEY=your-secret-key  # Same QWEN_API_KEY
+   LLM_API_BASE=http://<vm-ip>:5000/v1
+   LLM_MODEL=qwen3-coder-plus
+   ```
+
+**Alternative**: OpenRouter (if no VM access)
+
+- OpenRouter free tier: meta-llama/llama-3.3-70b-instruct:free
+- Rationale: No credit card, tool-calling support, globally accessible, 50 req/day
 
 ### Output Format (Task 1)
 
