@@ -267,7 +267,12 @@ def call_llm_with_tools(
         if "choices" not in result or len(result["choices"]) == 0:
             raise ValueError(f"Unexpected LLM response format: {result}")
 
-        return result["choices"][0]["message"]
+        message = result["choices"][0]["message"]
+        # Include finish_reason in response for better handling
+        finish_reason = result["choices"][0].get("finish_reason")
+        if finish_reason:
+            message["finish_reason"] = finish_reason
+        return message
 
     except httpx.HTTPError as e:
         print(f"HTTP error calling LLM: {e}", file=sys.stderr)
@@ -340,8 +345,27 @@ REMEMBER:
 
         # Check for tool calls
         if "tool_calls" not in response or not response["tool_calls"]:
-            # No tool calls - this is the final answer
+            # No tool calls - check if this is really the final answer
             content = response.get("content") or ""
+            
+            # If content looks incomplete (short, ends with ellipsis), keep exploring
+            is_incomplete = (
+                content.strip().endswith("...") or 
+                len(content.strip()) < 50 or
+                content.strip().endswith(":") or
+                content.strip().endswith(",")
+            )
+            
+            if is_incomplete and iteration < max_iterations - 1:
+                # This is an incomplete intermediate response, force LLM to continue
+                # Add a message encouraging more work
+                messages.append({
+                    "role": "user",
+                    "content": "Please continue exploring to find the complete answer. Keep using tools until you have enough information to provide a final, complete answer."
+                })
+                continue
+            
+            # This is the final answer (either complete or we're out of iterations)
             source = ""
 
             # Try to extract source from answer
