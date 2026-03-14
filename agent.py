@@ -283,42 +283,52 @@ def call_llm_with_tools(
 
 
 def run_agent_loop(
-    question: str, config: dict[str, str], max_iterations: int = 10
+    question: str, config: dict[str, str], max_iterations: int = 15
 ) -> dict[str, Any]:
     """Run the agentic loop until the LLM provides a final answer."""
     system_prompt = """You are a helpful assistant that answers questions about a software project by reading documentation and querying its backend API.
 
 You have access to three tools:
-
-1. **read_file(path)** - Read documentation and source code files from the project
+1. **read_file(path)** - Read documentation and source code files
 2. **list_files(path)** - Discover what files and directories are available
 3. **query_api(method, path, body)** - Query the backend API for runtime data
 
-INSTRUCTIONS:
+YOUR GOAL: Answer questions using tools. ALWAYS cite the exact source.
 
-1. Always use tools to find answers - never guess or rely on pre-training
-2. For each question, explore systematically: list_files → read_file or query_api → analyze
-3. Continue using tools until you have enough information for a complete answer
-4. Only stop when you have found the actual data/files/code answering the question
+WHEN TO USE EACH TOOL:
+- list_files: Find what files exist in a directory
+- read_file: Get content from files you've found
+- query_api: Get runtime data (learners, items, analytics, etc)
 
-WORKFLOW BY QUESTION TYPE:
+ANSWER FORMAT REQUIREMENTS:
 
-- **Wiki/Documentation questions**: list_files('wiki') → read_file('wiki/*.md')
-- **Code/Architecture questions**: list_files('backend') → read_file specific files
-- **API/Data questions**: query_api('GET', '/learners/', {}) or appropriate endpoint
+**For wiki/documentation questions:**
+1. Explore wiki/ directory
+2. Read relevant files
+3. Provide answer with full details
+4. End with: SOURCE: wiki/filename.md
 
-CRITICAL REQUIREMENTS FOR FINAL ANSWER:
+**For framework/code questions:**
+1. Check pyproject.toml, backend/app/main.py
+2. Provide framework name and details
+3. End with: SOURCE: path/to/relevant/file.py (or .toml)
 
-- MUST include exact sources (file paths or API endpoints)
-- MUST only answer based on what you found in tools, never assumptions
-- MUST continue searching if initial results are incomplete
-- For data/learner questions: ALWAYS use query_api, do NOT stop early
-- ALWAYS fully explore directories before giving up
+**For API/data questions:**
+1. Use query_api to get actual data
+2. Extract specific information (names, counts, items)
+3. End with: SOURCE: /api/endpoint/ (e.g., /learners/ or /items/)
 
-REMEMBER: 
-- Keep searching until you find the actual answer
-- If initial tool use doesn't work, try alternatives
-- Never output incomplete answers - if you don't have full info yet, keep exploring"""
+**For all answers:**
+- ALWAYS include the SOURCE line at the very end
+- Format: SOURCE: exact/path/or/endpoint
+- Do NOT add any text after the SOURCE line
+- Do NOT guess or assume - verify with tools
+
+CRITICAL RULES:
+- Use tools to find actual data, never assumptions
+- If first search fails, try alternative paths
+- Do NOT give up early
+- ALWAYS end with SOURCE: in the exact format shown"""
 
     messages = [
         {"role": "system", "content": system_prompt},
@@ -348,43 +358,40 @@ REMEMBER:
             # No tool calls - check if this is really the final answer
             content = response.get("content") or ""
             
-            # If content looks incomplete, keep exploring
-            # Consider it incomplete if it's a thinking/action statement
+            # Only consider very specific patterns as "thinking" statements that indicate
+            # the LLM wants to continue but didn't request a tool (which shouldn't happen)
+            # In practice, if LLM wants to continue, it SHOULD request a tool
+            # So we treat any response without tool_calls as final
+            
+            # However, if it's VERY short and looks like a thinking statement, force continuation
             is_incomplete = (
-                content.strip().endswith("```") or  # Incomplete code block
-                any(content.strip().lower().startswith(phrase) for phrase in [
-                    "let me ",
-                    "i need to",
-                    "i'll ",
-                    "i'll check",
-                    "now let me",
-                    "let me also",
-                    "let me first",
-                    "i should",
-                    "checking",
-                    "let me now",
-                ])
+                len(content.strip()) < 40 and any(
+                    content.strip().lower().startswith(phrase) 
+                    for phrase in ["let me ", "i need to", "let me check", "checking"]
+                )
             )
             
             if is_incomplete:
-                # This is an incomplete intermediate response, force LLM to continue
+                # This is clearly an incomplete response, encourage more exploration
                 messages.append({
                     "role": "user",
-                    "content": "Continue exploring. Use tools to find the complete information needed to answer the question fully."
+                    "content": "Use tools to find the answer. Provide a complete response with specific information and sources."
                 })
                 continue
             
             # This is the final answer
             source = ""
 
-            # Try to extract source from answer
-            if "wiki/" in content or "backend/" in content:
-                # Simple heuristic: look for file paths
-                import re
-
+            # Try to extract source from answer using explicit SOURCE: marker
+            import re
+            source_match = re.search(r"SOURCE:\s*([a-zA-Z0-9_\-./]+(?:\.[a-z]+)?)", content)
+            if source_match:
+                source = source_match.group(1).strip()
+            # Fallback: look for implicit file paths (old format for backwards compatibility)
+            elif "wiki/" in content or "backend/" in content:
                 matches = re.findall(r"([a-zA-Z0-9_\-./]+\.(md|py|yaml|json|sql|txt))", content)
                 if matches:
-                    source = matches[0][0]  # Use first found path
+                    source = matches[0][0]
 
             return {
                 "answer": content,
