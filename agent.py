@@ -289,31 +289,31 @@ You have access to three tools:
 2. **list_files(path)** - Discover what files and directories are available
 3. **query_api(method, path, body)** - Query the backend API for runtime data
 
-IMPORTANT WORKFLOW:
+INSTRUCTIONS:
 
-1. START by exploring the project structure with list_files to understand available resources
-2. For wiki/doc questions: Use list_files on 'wiki' directory, then read_file to get answers
-3. For code questions: Use list_files on 'backend' directory, then read_file specific files
-4. For data questions: Use query_api with GET requests to endpoints like /items/, /analytics/...
-5. If query_api returns an error, READ the source code to understand the issue and suggest fixes
+1. Always use tools to find answers - never guess or rely on pre-training
+2. For each question, explore systematically: list_files → read_file or query_api → analyze
+3. Continue using tools until you have enough information for a complete answer
+4. Only stop when you have found the actual data/files/code answering the question
 
-CRITICAL RULES:
+WORKFLOW BY QUESTION TYPE:
 
-- ALWAYS start with list_files to explore relevant directories first
-- ALWAYS read the complete relevant file sections to find the answer
-- ALWAYS include source references (file paths or API endpoints)
-- DO NOT give up early - if one search doesn't work, try alternative paths
-- DO NOT make assumptions - verify by reading actual files or querying API
-- For git/GitHub questions: Look in wiki/git* files
-- For framework questions: Check backend/app/main.py and pyproject.toml
-- For data questions: Query /items/, /analytics/, etc. with appropriate parameters
+- **Wiki/Documentation questions**: list_files('wiki') → read_file('wiki/*.md')
+- **Code/Architecture questions**: list_files('backend') → read_file specific files
+- **API/Data questions**: query_api('GET', '/learners/', {}) or appropriate endpoint
 
-Always provide:
-- Clear, direct answers
-- Source references (file paths for documentation, endpoint for API)
-- Error handling and explanations
+CRITICAL REQUIREMENTS FOR FINAL ANSWER:
 
-REMEMBER: If your first search doesn't yield complete information, continue searching until you find the answer!"""
+- MUST include exact sources (file paths or API endpoints)
+- MUST only answer based on what you found in tools, never assumptions
+- MUST continue searching if initial results are incomplete
+- For data/learner questions: ALWAYS use query_api, do NOT stop early
+- ALWAYS fully explore directories before giving up
+
+REMEMBER: 
+- Keep searching until you find the actual answer
+- If initial tool use doesn't work, try alternatives
+- Never output incomplete answers - if you don't have full info yet, keep exploring"""
 
     messages = [
         {"role": "system", "content": system_prompt},
