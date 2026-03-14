@@ -33,6 +33,8 @@ def load_config() -> dict[str, str]:
     """Load LLM configuration from environment variables."""
     # Load from .env.agent.secret if it exists
     load_dotenv(".env.agent.secret")
+    # Also load .env.docker.secret for LMS_API_KEY
+    load_dotenv(".env.docker.secret")
 
     config = {
         "api_key": os.getenv("LLM_API_KEY"),
@@ -324,7 +326,14 @@ Always:
         response = call_llm_with_tools(messages, config)
 
         # Add assistant message to history
-        messages.append({"role": "assistant", "content": response.get("content") or ""})
+        # For Qwen Code API compatibility, include tool_calls if present
+        assistant_msg = {
+            "role": "assistant",
+            "content": response.get("content") or "",
+        }
+        if "tool_calls" in response and response["tool_calls"]:
+            assistant_msg["tool_calls"] = response["tool_calls"]
+        messages.append(assistant_msg)
 
         # Check for tool calls
         if "tool_calls" not in response or not response["tool_calls"]:
